@@ -42,8 +42,6 @@ npm start
 
 Backend running at: `http://localhost:3000`
 
-Default credentials: `ogretmen1` / `sifre123`
-
 ### 2. Admin Panel
 
 ```bash
