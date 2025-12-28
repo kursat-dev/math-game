@@ -1,57 +1,57 @@
-const API_URL = 'http://localhost:3000/api/game';
+const API_URL = 'https://math-game-lsj0.onrender.com/api/game';
 
 let questions = [];
 let currentQuestionIndex = 0;
 let stats = {
-    correct: 0,
-    wrong: 0,
-    score: 0
+  correct: 0,
+  wrong: 0,
+  score: 0
 };
 
 // Soruları API'den yükle
 async function loadQuestions() {
-    const gameArea = document.getElementById('gameArea');
-    const topic = document.getElementById('topicFilter').value;
-    const difficulty = document.getElementById('difficultyFilter').value;
+  const gameArea = document.getElementById('gameArea');
+  const topic = document.getElementById('topicFilter').value;
+  const difficulty = document.getElementById('difficultyFilter').value;
 
-    // Loading göster
-    gameArea.innerHTML = `
+  // Loading göster
+  gameArea.innerHTML = `
     <div class="loading glass-card">
       <div class="spinner"></div>
       <p>Sorular yükleniyor...</p>
     </div>
   `;
 
-    try {
-        // API'den soruları çek
-        let url = `${API_URL}/questions?limit=10`;
-        if (topic) url += `&topic=${topic}`;
-        if (difficulty) url += `&difficulty=${difficulty}`;
+  try {
+    // API'den soruları çek
+    let url = `${API_URL}/questions?limit=10`;
+    if (topic) url += `&topic=${topic}`;
+    if (difficulty) url += `&difficulty=${difficulty}`;
 
-        const response = await fetch(url);
-        const data = await response.json();
+    const response = await fetch(url);
+    const data = await response.json();
 
-        if (!response.ok) {
-            throw new Error(data.error || 'Sorular yüklenemedi');
-        }
+    if (!response.ok) {
+      throw new Error(data.error || 'Sorular yüklenemedi');
+    }
 
-        questions = data.questions;
-        currentQuestionIndex = 0;
+    questions = data.questions;
+    currentQuestionIndex = 0;
 
-        if (questions.length === 0) {
-            gameArea.innerHTML = `
+    if (questions.length === 0) {
+      gameArea.innerHTML = `
         <div class="glass-card" style="text-align: center; padding: 3rem;">
           <h2>😔 Soru Bulunamadı</h2>
           <p>Seçtiğiniz filtrelere uygun soru bulunmuyor.</p>
           <p style="margin-top: 1rem;">Lütfen farklı filtreler deneyin veya admin panelden yeni sorular ekleyin.</p>
         </div>
       `;
-            return;
-        }
+      return;
+    }
 
-        showQuestion();
-    } catch (error) {
-        gameArea.innerHTML = `
+    showQuestion();
+  } catch (error) {
+    gameArea.innerHTML = `
       <div class="glass-card" style="text-align: center; padding: 2rem;">
         <h2>❌ Hata</h2>
         <p>${error.message}</p>
@@ -63,17 +63,17 @@ async function loadQuestions() {
         </button>
       </div>
     `;
-    }
+  }
 }
 
 // Mevcut soruyu göster
 function showQuestion() {
-    const gameArea = document.getElementById('gameArea');
-    const question = questions[currentQuestionIndex];
+  const gameArea = document.getElementById('gameArea');
+  const question = questions[currentQuestionIndex];
 
-    const topicLabel = question.topic === 'trigonometri' ? 'Trigonometri' : 'Analitik Geometri';
+  const topicLabel = question.topic === 'trigonometri' ? 'Trigonometri' : 'Analitik Geometri';
 
-    gameArea.innerHTML = `
+  gameArea.innerHTML = `
     <div class="question-card glass-card">
       <div class="question-header">
         <span class="badge">${topicLabel}</span>
@@ -112,82 +112,82 @@ function showQuestion() {
 
 // İpucu göster
 function showHint() {
-    const hintBox = document.getElementById('hintBox');
-    if (hintBox) {
-        hintBox.style.display = 'block';
-    }
+  const hintBox = document.getElementById('hintBox');
+  if (hintBox) {
+    hintBox.style.display = 'block';
+  }
 }
 
 // Cevabı kontrol et
 function checkAnswer(selectedAnswer) {
-    const question = questions[currentQuestionIndex];
-    const buttons = document.querySelectorAll('.btn-option');
+  const question = questions[currentQuestionIndex];
+  const buttons = document.querySelectorAll('.btn-option');
 
-    // Tüm butonları devre dışı bırak
-    buttons.forEach(btn => btn.disabled = true);
+  // Tüm butonları devre dışı bırak
+  buttons.forEach(btn => btn.disabled = true);
 
-    // Doğru ve yanlış cevapları işaretle
-    buttons.forEach(btn => {
-        const option = btn.getAttribute('data-option');
-        if (option === question.correctAnswer) {
-            btn.classList.add('correct');
-        } else if (option === selectedAnswer && option !== question.correctAnswer) {
-            btn.classList.add('wrong');
-        }
-    });
-
-    // İstatistikleri güncelle
-    if (selectedAnswer === question.correctAnswer) {
-        stats.correct++;
-        stats.score += 10;
-    } else {
-        stats.wrong++;
-        stats.score = Math.max(0, stats.score - 5);
+  // Doğru ve yanlış cevapları işaretle
+  buttons.forEach(btn => {
+    const option = btn.getAttribute('data-option');
+    if (option === question.correctAnswer) {
+      btn.classList.add('correct');
+    } else if (option === selectedAnswer && option !== question.correctAnswer) {
+      btn.classList.add('wrong');
     }
+  });
 
-    updateStats();
+  // İstatistikleri güncelle
+  if (selectedAnswer === question.correctAnswer) {
+    stats.correct++;
+    stats.score += 10;
+  } else {
+    stats.wrong++;
+    stats.score = Math.max(0, stats.score - 5);
+  }
 
-    // 2 saniye sonra sonraki soruya geç
-    setTimeout(() => {
-        if (currentQuestionIndex < questions.length - 1) {
-            currentQuestionIndex++;
-            showQuestion();
-        } else {
-            showResults();
-        }
-    }, 2000);
+  updateStats();
+
+  // 2 saniye sonra sonraki soruya geç
+  setTimeout(() => {
+    if (currentQuestionIndex < questions.length - 1) {
+      currentQuestionIndex++;
+      showQuestion();
+    } else {
+      showResults();
+    }
+  }, 2000);
 }
 
 // İstatistikleri güncelle
 function updateStats() {
-    document.getElementById('correctCount').textContent = stats.correct;
-    document.getElementById('wrongCount').textContent = stats.wrong;
-    document.getElementById('score').textContent = stats.score;
+  document.getElementById('correctCount').textContent = stats.correct;
+  document.getElementById('wrongCount').textContent = stats.wrong;
+  document.getElementById('score').textContent = stats.score;
 }
 
 // Sonuçları göster
 function showResults() {
-    const gameArea = document.getElementById('gameArea');
-    const percentage = Math.round((stats.correct / questions.length) * 100);
+  const gameArea = document.getElementById('gameArea');
+  const percentage = Math.round((stats.correct / questions.length) * 100);
 
-    let message = '';
-    let emoji = '';
+  let message = '';
+  let emoji = '';
 
-    if (percentage >= 80) {
-        message = 'Mükemmel! 🎉';
-        emoji = '🏆';
-    } else if (percentage >= 60) {
-        message = 'Harika! 👏';
-        emoji = '⭐';
-    } else if (percentage >= 40) {
-        message = 'İyi deneme! 👍';
-        emoji = '💪';
-    } else {
-        message = 'Biraz daha çalışmalısın! 📚';
-        emoji = '🎯';
-    }
+  if (percentage >= 80) {
+    message = 'Mükemmel! 🎉';
+    emoji = '🏆';
+  } else if (percentage >= 60) {
+    message = 'Harika! 👏';
+    emoji = '⭐';
+  } else if (percentage >= 40) {
+    message = 'İyi deneme! 👍';
+    emoji = '💪';
+  } else {
+    message = 'Biraz daha çalışmalısın! 📚';
+    emoji = '🎯';
+  }
 
-    gameArea.innerHTML = `
+  gameArea.innerHTML = `
     <div class="glass-card" style="text-align: center; padding: 3rem;">
       <div style="font-size: 4rem; margin-bottom: 1rem;">${emoji}</div>
       <h2>${message}</h2>
@@ -211,9 +211,9 @@ function showResults() {
 
 // Oyunu sıfırla
 function resetGame() {
-    stats = { correct: 0, wrong: 0, score: 0 };
-    updateStats();
-    loadQuestions();
+  stats = { correct: 0, wrong: 0, score: 0 };
+  updateStats();
+  loadQuestions();
 }
 
 // Sayfa yüklendiğinde istatistikleri sıfırla
