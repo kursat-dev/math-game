@@ -88,12 +88,6 @@ export default function Login({ onLoginSuccess }) {
                         {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
                     </button>
                 </form>
-
-                <div className="mt-lg text-center" style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                    <p>Varsayılan Giriş:</p>
-                    <p><strong>Kullanıcı:</strong> ogretmen1</p>
-                    <p><strong>Şifre:</strong> sifre123</p>
-                </div>
             </div>
         </div>
     );
