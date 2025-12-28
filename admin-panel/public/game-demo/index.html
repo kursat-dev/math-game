@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matematik Oyunu - Demo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🎮 Matematik Oyunu</h1>
+            <p>11. Sınıf - Trigonometri & Analitik Geometri</p>
+        </header>
+
+        <div class="filters glass-card">
+            <div class="filter-group">
+                <label>Konu:</label>
+                <select id="topicFilter">
+                    <option value="">Tümü</option>
+                    <option value="trigonometri">Trigonometri</option>
+                    <option value="analitik-geometri">Analitik Geometri</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Zorluk:</label>
+                <select id="difficultyFilter">
+                    <option value="">Tümü</option>
+                    <option value="kolay">Kolay</option>
+                    <option value="orta">Orta</option>
+                    <option value="zor">Zor</option>
+                </select>
+            </div>
+
+            <button class="btn btn-primary" onclick="loadQuestions()">
+                🔄 Soru Yükle
+            </button>
+        </div>
+
+        <div id="gameArea">
+            <div class="welcome glass-card">
+                <h2>Hoş Geldiniz! 🎯</h2>
+                <p>Yukarıdaki filtrelerden konu ve zorluk seçerek başlayın.</p>
+                <button class="btn btn-primary" onclick="loadQuestions()">
+                    Başla
+                </button>
+            </div>
+        </div>
+
+        <div class="stats glass-card">
+            <div class="stat-item">
+                <span class="stat-label">Doğru:</span>
+                <span class="stat-value" id="correctCount">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Yanlış:</span>
+                <span class="stat-value" id="wrongCount">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Skor:</span>
+                <span class="stat-value" id="score">0</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
