@@ -1,0 +1,793 @@
+import fs from 'fs';
+import path from 'path';
+import bcrypt from 'bcrypt';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const DATA_DIR = path.join(__dirname, 'data');
+const TEACHERS_FILE = path.join(DATA_DIR, 'teachers.json');
+const QUESTIONS_FILE = path.join(DATA_DIR, 'questions.json');
+
+// Data dizinini oluştur
+if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+// Veri okuma fonksiyonları
+export function readTeachers() {
+    if (!fs.existsSync(TEACHERS_FILE)) {
+        return [];
+    }
+    const data = fs.readFileSync(TEACHERS_FILE, 'utf8');
+    return JSON.parse(data);
+}
+
+export function readQuestions() {
+    if (!fs.existsSync(QUESTIONS_FILE)) {
+        return [];
+    }
+    const data = fs.readFileSync(QUESTIONS_FILE, 'utf8');
+    return JSON.parse(data);
+}
+
+// Veri yazma fonksiyonları
+export function writeTeachers(teachers) {
+    fs.writeFileSync(TEACHERS_FILE, JSON.stringify(teachers, null, 2));
+}
+
+export function writeQuestions(questions) {
+    fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(questions, null, 2));
+}
+
+// Veritabanı başlatma
+function initializeDatabase() {
+    const teachers = readTeachers();
+    const questions = readQuestions();
+
+    // Varsayılan öğretmen hesabı oluştur
+    if (teachers.length === 0) {
+        const hashedPassword = bcrypt.hashSync('sifre123', 10);
+        const defaultTeacher = {
+            id: 1,
+            username: 'ogretmen1',
+            password_hash: hashedPassword,
+            name: 'Ahmet Yılmaz',
+            created_at: new Date().toISOString()
+        };
+        writeTeachers([defaultTeacher]);
+
+        console.log('✅ Varsayılan öğretmen hesabı oluşturuldu');
+        console.log('   Kullanıcı adı: ogretmen1');
+        console.log('   Şifre: sifre123');
+    }
+
+    // Örnek sorular ekle
+    if (questions.length === 0) {
+        const sampleQuestions = [
+            // TRİGONOMETRİ - KOLAY
+            {
+                id: 1,
+                question_text: 'sin(30°) değeri kaçtır?',
+                topic: 'trigonometri',
+                difficulty: 'kolay',
+                option_a: '1/2',
+                option_b: '√2/2',
+                option_c: '√3/2',
+                option_d: '1',
+                correct_answer: 'A',
+                hint: '30° özel açılardan biridir. sin(30°) = 1/2',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 2,
+                question_text: 'cos(60°) değeri kaçtır?',
+                topic: 'trigonometri',
+                difficulty: 'kolay',
+                option_a: '√3/2',
+                option_b: '1/2',
+                option_c: '√2/2',
+                option_d: '0',
+                correct_answer: 'B',
+                hint: 'cos(60°) = sin(30°) olduğunu unutmayın!',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 3,
+                question_text: 'tan(45°) değeri kaçtır?',
+                topic: 'trigonometri',
+                difficulty: 'kolay',
+                option_a: '0',
+                option_b: '1',
+                option_c: '√2',
+                option_d: '√3',
+                correct_answer: 'B',
+                hint: '45° açısında karşı ve komşu kenar eşit uzunluktadır.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 4,
+                question_text: 'sin(90°) değeri kaçtır?',
+                topic: 'trigonometri',
+                difficulty: 'kolay',
+                option_a: '0',
+                option_b: '1/2',
+                option_c: '√2/2',
+                option_d: '1',
+                correct_answer: 'D',
+                hint: '90°\'de sinüs değeri maksimuma ulaşır.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 5,
+                question_text: 'cos(0°) değeri kaçtır?',
+                topic: 'trigonometri',
+                difficulty: 'kolay',
+                option_a: '0',
+                option_b: '1/2',
+                option_c: '1',
+                option_d: '√3/2',
+                correct_answer: 'C',
+                hint: '0° açısında kosinüs değeri 1\'dir.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 6,
+                question_text: 'sin(0°) değeri kaçtır?',
+                topic: 'trigonometri',
+                difficulty: 'kolay',
+                option_a: '0',
+                option_b: '1',
+                option_c: '1/2',
+                option_d: '-1',
+                correct_answer: 'A',
+                hint: '0° açısında sinüs değeri 0\'dır.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 7,
+                question_text: 'tan(0°) değeri kaçtır?',
+                topic: 'trigonometri',
+                difficulty: 'kolay',
+                option_a: '1',
+                option_b: '0',
+                option_c: 'tanımsız',
+                option_d: '∞',
+                correct_answer: 'B',
+                hint: 'tan = sin/cos olduğundan, tan(0°) = 0/1 = 0',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 8,
+                question_text: 'sin²x + cos²x ifadesinin değeri kaçtır?',
+                topic: 'trigonometri',
+                difficulty: 'kolay',
+                option_a: '0',
+                option_b: '1',
+                option_c: '2',
+                option_d: 'x',
+                correct_answer: 'B',
+                hint: 'Bu temel trigonometrik özdeşliktir.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 9,
+                question_text: 'cos(90°) değeri kaçtır?',
+                topic: 'trigonometri',
+                difficulty: 'kolay',
+                option_a: '1',
+                option_b: '0',
+                option_c: '-1',
+                option_d: '1/2',
+                correct_answer: 'B',
+                hint: '90°\'de kosinüs değeri 0\'dır.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 10,
+                question_text: 'sin(60°) değeri kaçtır?',
+                topic: 'trigonometri',
+                difficulty: 'kolay',
+                option_a: '1/2',
+                option_b: '√2/2',
+                option_c: '√3/2',
+                option_d: '1',
+                correct_answer: 'C',
+                hint: 'sin(60°) = cos(30°) = √3/2',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+
+            // TRİGONOMETRİ - ORTA
+            {
+                id: 11,
+                question_text: 'sin(120°) değeri kaçtır?',
+                topic: 'trigonometri',
+                difficulty: 'orta',
+                option_a: '-√3/2',
+                option_b: '√3/2',
+                option_c: '1/2',
+                option_d: '-1/2',
+                correct_answer: 'B',
+                hint: 'sin(120°) = sin(180° - 60°) = sin(60°)',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 12,
+                question_text: 'cos(135°) değeri kaçtır?',
+                topic: 'trigonometri',
+                difficulty: 'orta',
+                option_a: '√2/2',
+                option_b: '-√2/2',
+                option_c: '1/2',
+                option_d: '-1/2',
+                correct_answer: 'B',
+                hint: '135° = 180° - 45°, ikinci bölgede kosinüs negatiftir.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 13,
+                question_text: 'tan(60°) değeri kaçtır?',
+                topic: 'trigonometri',
+                difficulty: 'orta',
+                option_a: '1',
+                option_b: '√2',
+                option_c: '√3',
+                option_d: '2',
+                correct_answer: 'C',
+                hint: 'tan(60°) = sin(60°)/cos(60°) = (√3/2)/(1/2) = √3',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 14,
+                question_text: '2sin(30°)cos(30°) ifadesinin değeri kaçtır?',
+                topic: 'trigonometri',
+                difficulty: 'orta',
+                option_a: 'sin(60°)',
+                option_b: 'cos(60°)',
+                option_c: 'tan(60°)',
+                option_d: 'sin(30°)',
+                correct_answer: 'A',
+                hint: '2sinAcosA = sin(2A) formülünü kullanın.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 15,
+                question_text: 'sin(150°) değeri kaçtır?',
+                topic: 'trigonometri',
+                difficulty: 'orta',
+                option_a: '-1/2',
+                option_b: '1/2',
+                option_c: '√3/2',
+                option_d: '-√3/2',
+                correct_answer: 'B',
+                hint: 'sin(150°) = sin(180° - 30°) = sin(30°) = 1/2',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 16,
+                question_text: 'cos(180°) değeri kaçtır?',
+                topic: 'trigonometri',
+                difficulty: 'orta',
+                option_a: '1',
+                option_b: '0',
+                option_c: '-1',
+                option_d: '1/2',
+                correct_answer: 'C',
+                hint: '180°\'de x ekseni üzerinde negatif yöndeyiz.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 17,
+                question_text: 'tan(30°) değeri kaçtır?',
+                topic: 'trigonometri',
+                difficulty: 'orta',
+                option_a: '√3/3',
+                option_b: '√3',
+                option_c: '1',
+                option_d: '1/2',
+                correct_answer: 'A',
+                hint: 'tan(30°) = sin(30°)/cos(30°) = (1/2)/(√3/2) = 1/√3 = √3/3',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 18,
+                question_text: 'cos²(45°) - sin²(45°) ifadesinin değeri kaçtır?',
+                topic: 'trigonometri',
+                difficulty: 'orta',
+                option_a: '1',
+                option_b: '0',
+                option_c: '-1',
+                option_d: '1/2',
+                correct_answer: 'B',
+                hint: 'cos(45°) = sin(45°) = √2/2 olduğundan farkları 0\'dır.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 19,
+                question_text: 'sin(210°) değeri kaçtır?',
+                topic: 'trigonometri',
+                difficulty: 'orta',
+                option_a: '1/2',
+                option_b: '-1/2',
+                option_c: '√3/2',
+                option_d: '-√3/2',
+                correct_answer: 'B',
+                hint: '210° = 180° + 30°, üçüncü bölgede sinüs negatiftir.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 20,
+                question_text: '1 + tan²x ifadesi hangi ifadeye eşittir?',
+                topic: 'trigonometri',
+                difficulty: 'orta',
+                option_a: 'sin²x',
+                option_b: 'cos²x',
+                option_c: 'sec²x',
+                option_d: 'csc²x',
+                correct_answer: 'C',
+                hint: '1 + tan²x = sec²x = 1/cos²x',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+
+            // TRİGONOMETRİ - ZOR
+            {
+                id: 21,
+                question_text: 'sin(α + β) açılımı nedir?',
+                topic: 'trigonometri',
+                difficulty: 'zor',
+                option_a: 'sinα·cosβ + cosα·sinβ',
+                option_b: 'sinα·cosβ - cosα·sinβ',
+                option_c: 'sinα + sinβ',
+                option_d: 'cosα·cosβ - sinα·sinβ',
+                correct_answer: 'A',
+                hint: 'Toplam formülü: pozitif terimlerle bağlanır.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 22,
+                question_text: 'cos(2x) ifadesinin cos fonksiyonu cinsinden açılımı nedir?',
+                topic: 'trigonometri',
+                difficulty: 'zor',
+                option_a: '2cos²x',
+                option_b: '2cos²x - 1',
+                option_c: 'cos²x - 1',
+                option_d: '1 - cos²x',
+                correct_answer: 'B',
+                hint: 'cos(2x) = 2cos²x - 1 = 1 - 2sin²x = cos²x - sin²x',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 23,
+                question_text: 'sin(15°) değeri hangisidir?',
+                topic: 'trigonometri',
+                difficulty: 'zor',
+                option_a: '(√6 - √2)/4',
+                option_b: '(√6 + √2)/4',
+                option_c: '(√3 - 1)/4',
+                option_d: '1/4',
+                correct_answer: 'A',
+                hint: '15° = 45° - 30°, fark formülü kullanılabilir.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 24,
+                question_text: 'tan(α - β) açılımı nedir?',
+                topic: 'trigonometri',
+                difficulty: 'zor',
+                option_a: '(tanα - tanβ)/(1 + tanα·tanβ)',
+                option_b: '(tanα + tanβ)/(1 - tanα·tanβ)',
+                option_c: 'tanα - tanβ',
+                option_d: '(tanα - tanβ)/(tanα + tanβ)',
+                correct_answer: 'A',
+                hint: 'Fark formülünde payda pozitif, pay negatif terim içerir.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 25,
+                question_text: 'sin(3x) ifadesi sin(x) cinsinden yazıldığında katsayısı kaçtır?',
+                topic: 'trigonometri',
+                difficulty: 'zor',
+                option_a: '3',
+                option_b: '4',
+                option_c: '3sin(x) - 4sin³(x)',
+                option_d: 'sin(x) + 3sin³(x)',
+                correct_answer: 'C',
+                hint: 'sin(3x) = 3sinx - 4sin³x formülü kullanılır.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+
+            // ANALİTİK GEOMETRİ - KOLAY
+            {
+                id: 26,
+                question_text: 'A(2,3) ve B(5,7) noktaları arasındaki uzaklık kaçtır?',
+                topic: 'analitik-geometri',
+                difficulty: 'kolay',
+                option_a: '3',
+                option_b: '4',
+                option_c: '5',
+                option_d: '6',
+                correct_answer: 'C',
+                hint: 'İki nokta arası uzaklık formülü: √[(x₂-x₁)² + (y₂-y₁)²]',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 27,
+                question_text: 'y = 2x + 3 doğrusunun eğimi kaçtır?',
+                topic: 'analitik-geometri',
+                difficulty: 'kolay',
+                option_a: '2',
+                option_b: '3',
+                option_c: '1',
+                option_d: '-2',
+                correct_answer: 'A',
+                hint: 'y = mx + n formülünde m eğimi temsil eder.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 28,
+                question_text: 'A(1,2) ve B(3,2) noktalarını birleştiren doğrunun eğimi kaçtır?',
+                topic: 'analitik-geometri',
+                difficulty: 'kolay',
+                option_a: '0',
+                option_b: '1',
+                option_c: '2',
+                option_d: 'tanımsız',
+                correct_answer: 'A',
+                hint: 'y koordinatları eşit olduğundan yatay doğrudur, eğim 0.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 29,
+                question_text: 'Orijinden geçen ve eğimi 1 olan doğrunun denklemi nedir?',
+                topic: 'analitik-geometri',
+                difficulty: 'kolay',
+                option_a: 'y = x',
+                option_b: 'y = x + 1',
+                option_c: 'y = 2x',
+                option_d: 'x = y',
+                correct_answer: 'A',
+                hint: 'Orijinden geçiyorsa n = 0, eğim 1 ise m = 1.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 30,
+                question_text: 'A(0,0) ve B(3,4) noktaları arasındaki uzaklık kaçtır?',
+                topic: 'analitik-geometri',
+                difficulty: 'kolay',
+                option_a: '3',
+                option_b: '4',
+                option_c: '5',
+                option_d: '7',
+                correct_answer: 'C',
+                hint: 'Ünlü 3-4-5 dik üçgeni.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 31,
+                question_text: 'x ekseni üzerinde olan bir noktanın y koordinatı kaçtır?',
+                topic: 'analitik-geometri',
+                difficulty: 'kolay',
+                option_a: '0',
+                option_b: '1',
+                option_c: 'x',
+                option_d: 'tanımsız',
+                correct_answer: 'A',
+                hint: 'x ekseni üzerinde y = 0\'dır.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 32,
+                question_text: 'A(2,5) noktasının x eksenine uzaklığı kaçtır?',
+                topic: 'analitik-geometri',
+                difficulty: 'kolay',
+                option_a: '2',
+                option_b: '5',
+                option_c: '7',
+                option_d: '3',
+                correct_answer: 'B',
+                hint: 'x eksenine uzaklık y koordinatına eşittir.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 33,
+                question_text: 'y = -3x + 2 doğrusunun eğimi kaçtır?',
+                topic: 'analitik-geometri',
+                difficulty: 'kolay',
+                option_a: '3',
+                option_b: '-3',
+                option_c: '2',
+                option_d: '-2',
+                correct_answer: 'B',
+                hint: 'Eğim x\'in katsayısıdır.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 34,
+                question_text: 'A(1,1) ve B(1,5) noktalarını birleştiren doğru hangi eksene paralleldir?',
+                topic: 'analitik-geometri',
+                difficulty: 'kolay',
+                option_a: 'x ekseni',
+                option_b: 'y ekseni',
+                option_c: 'Her ikisi',
+                option_d: 'Hiçbiri',
+                correct_answer: 'B',
+                hint: 'x koordinatları eşit olduğunda doğru y eksenine paralleldir.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 35,
+                question_text: 'A(3,4) noktasının orijine uzaklığı kaçtır?',
+                topic: 'analitik-geometri',
+                difficulty: 'kolay',
+                option_a: '3',
+                option_b: '4',
+                option_c: '5',
+                option_d: '7',
+                correct_answer: 'C',
+                hint: 'Uzaklık = √(3² + 4²) = √25 = 5',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+
+            // ANALİTİK GEOMETRİ - ORTA
+            {
+                id: 36,
+                question_text: 'A(1,2) ve B(4,6) noktalarının orta noktası nedir?',
+                topic: 'analitik-geometri',
+                difficulty: 'orta',
+                option_a: '(2,4)',
+                option_b: '(2.5, 4)',
+                option_c: '(3,4)',
+                option_d: '(5,8)',
+                correct_answer: 'B',
+                hint: 'Orta nokta = ((x₁+x₂)/2, (y₁+y₂)/2)',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 37,
+                question_text: 'y = 2x + 3 ve y = 2x - 1 doğruları birbiriyle nasıl bir ilişkidedir?',
+                topic: 'analitik-geometri',
+                difficulty: 'orta',
+                option_a: 'Paralel',
+                option_b: 'Dik',
+                option_c: 'Kesişir',
+                option_d: 'Çakışık',
+                correct_answer: 'A',
+                hint: 'Eğimleri eşit (m = 2) ama sabit terimleri farklı.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 38,
+                question_text: 'y = 2x + 1 doğrusuna dik olan bir doğrunun eğimi kaçtır?',
+                topic: 'analitik-geometri',
+                difficulty: 'orta',
+                option_a: '2',
+                option_b: '-2',
+                option_c: '1/2',
+                option_d: '-1/2',
+                correct_answer: 'D',
+                hint: 'Dik doğruların eğimleri çarpımı -1\'dir. m₁·m₂ = -1',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 39,
+                question_text: 'A(2,3), B(4,7) ve C(x,5) noktaları doğrusaldır. x değeri kaçtır?',
+                topic: 'analitik-geometri',
+                difficulty: 'orta',
+                option_a: '2',
+                option_b: '3',
+                option_c: '4',
+                option_d: '5',
+                correct_answer: 'B',
+                hint: 'Doğrusal noktalar için eğimler eşittir.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 40,
+                question_text: 'x² + y² = 25 çemberinin merkezi ve yarıçapı nedir?',
+                topic: 'analitik-geometri',
+                difficulty: 'orta',
+                option_a: 'O(0,0), r=5',
+                option_b: 'O(0,0), r=25',
+                option_c: 'O(5,5), r=5',
+                option_d: 'O(25,25), r=5',
+                correct_answer: 'A',
+                hint: 'x² + y² = r² formülü merkezi orijinde olan çemberi verir.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 41,
+                question_text: '2x + 3y = 6 doğrusunun y eksenini kestiği nokta nedir?',
+                topic: 'analitik-geometri',
+                difficulty: 'orta',
+                option_a: '(0,2)',
+                option_b: '(0,3)',
+                option_c: '(2,0)',
+                option_d: '(3,0)',
+                correct_answer: 'A',
+                hint: 'y ekseninde x = 0 koyun: 3y = 6 → y = 2',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 42,
+                question_text: 'A(1,2) noktasının y = x doğrusuna göre simetriği nedir?',
+                topic: 'analitik-geometri',
+                difficulty: 'orta',
+                option_a: '(2,1)',
+                option_b: '(1,2)',
+                option_c: '(-1,-2)',
+                option_d: '(-2,-1)',
+                correct_answer: 'A',
+                hint: 'y = x doğrusuna göre simetride x ve y yer değiştirir.',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 43,
+                question_text: 'A(3,0) ve B(0,4) noktalarından geçen doğrunun denklemi nedir?',
+                topic: 'analitik-geometri',
+                difficulty: 'orta',
+                option_a: '4x + 3y = 12',
+                option_b: '3x + 4y = 12',
+                option_c: 'x + y = 7',
+                option_d: '4x - 3y = 12',
+                correct_answer: 'A',
+                hint: 'Kesim formülü: x/a + y/b = 1 → x/3 + y/4 = 1',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 44,
+                question_text: '(x-2)² + (y-3)² = 16 çemberinin yarıçapı kaçtır?',
+                topic: 'analitik-geometri',
+                difficulty: 'orta',
+                option_a: '2',
+                option_b: '3',
+                option_c: '4',
+                option_d: '16',
+                correct_answer: 'C',
+                hint: '(x-a)² + (y-b)² = r² formülünde r² = 16, r = 4',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 45,
+                question_text: 'A(1,1), B(4,1) ve C(1,5) noktalarının oluşturduğu üçgenin alanı kaçtır?',
+                topic: 'analitik-geometri',
+                difficulty: 'orta',
+                option_a: '6',
+                option_b: '8',
+                option_c: '10',
+                option_d: '12',
+                correct_answer: 'A',
+                hint: 'Dik üçgen: taban = 3, yükseklik = 4, alan = 3×4/2 = 6',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+
+            // ANALİTİK GEOMETRİ - ZOR
+            {
+                id: 46,
+                question_text: 'A(1,2) noktasının 3x + 4y - 7 = 0 doğrusuna uzaklığı kaçtır?',
+                topic: 'analitik-geometri',
+                difficulty: 'zor',
+                option_a: '1',
+                option_b: '2',
+                option_c: '4/5',
+                option_d: '3/5',
+                correct_answer: 'C',
+                hint: 'Nokta-doğru uzaklığı: |ax₀ + by₀ + c|/√(a² + b²)',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 47,
+                question_text: 'y = x² parabolü ile y = 2x - 1 doğrusunun kesişim noktalarının x koordinatları toplamı kaçtır?',
+                topic: 'analitik-geometri',
+                difficulty: 'zor',
+                option_a: '1',
+                option_b: '2',
+                option_c: '3',
+                option_d: '4',
+                correct_answer: 'B',
+                hint: 'x² = 2x - 1 → x² - 2x + 1 = 0, Viète: x₁ + x₂ = 2',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 48,
+                question_text: 'A(2,3), B(5,7) ve C(8,11) noktaları doğrusal mıdır?',
+                topic: 'analitik-geometri',
+                difficulty: 'zor',
+                option_a: 'Evet',
+                option_b: 'Hayır',
+                option_c: 'Belirlenemez',
+                option_d: 'Bazen',
+                correct_answer: 'A',
+                hint: 'Eğimler kontrol edin: m₁ = m₂ = 4/3',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 49,
+                question_text: 'x² + y² - 4x - 6y + 9 = 0 çemberinin merkezi nedir?',
+                topic: 'analitik-geometri',
+                difficulty: 'zor',
+                option_a: '(2,3)',
+                option_b: '(-2,-3)',
+                option_c: '(4,6)',
+                option_d: '(-4,-6)',
+                correct_answer: 'A',
+                hint: 'Tam kareye tamamlayın: (x-2)² + (y-3)² = 4',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 50,
+                question_text: 'A(1,2), B(3,4) ve C(x,y) noktaları için ABC üçgeninin ağırlık merkezi G(2,3) ise C noktası nedir?',
+                topic: 'analitik-geometri',
+                difficulty: 'zor',
+                option_a: '(2,3)',
+                option_b: '(3,4)',
+                option_c: '(2,5)',
+                option_d: '(4,6)',
+                correct_answer: 'A',
+                hint: 'Ağırlık merkezi: G = ((x₁+x₂+x₃)/3, (y₁+y₂+y₃)/3)',
+                created_by: 1,
+                created_at: new Date().toISOString()
+            }
+        ];
+
+        writeQuestions(sampleQuestions);
+        console.log(`✅ Örnek sorular eklendi (${sampleQuestions.length} adet)`);
+    }
+}
+
+// Helper fonksiyonlar
+export function getNextId(items) {
+    if (items.length === 0) return 1;
+    return Math.max(...items.map(item => item.id)) + 1;
+}
+
+initializeDatabase();
