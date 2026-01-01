@@ -74,12 +74,12 @@ Open `game-demo/index.html` in your browser.
 
 #### Step 2: Push to GitHub
 ```bash
-cd /Users/kursat/Documents/Projeler/math-game-admin
+cd /Users/blablabla/math-game
 git init
 git add .
 git commit -m "Initial commit"
 # Create repo on github.com, then:
-git remote add origin https://github.com/YOUR_USERNAME/math-game-admin.git
+git remote add origin https://github.com/kursat-dev/math-game.git
 git branch -M main
 git push -u origin main
 ```
